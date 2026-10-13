@@ -19,7 +19,7 @@
   --sand:#F3F5F9; --sand-deep:#E8EDF5; --paper:#FFFFFF;
   --navy:#0B1A3F; --navy-soft:#1B2E63; --navy-pale:#E3EAF6;
   --accent:#1A4FA0; --accent-nv:#A9C4F5;
-  --red:#C8102E; --red-nv:#F07A86;
+  --red:#C8102E; --red-nv:#F07A86; --red-brand:#C8102E;
   --ink:#0F1A33; --muted:#56607A; --line:rgba(15,26,51,.12);
   --on-navy:#F4F6FB; --on-navy-muted:#B4BED6;
   --ok:#2E7D4F; --ok-bg:#E3F1E8; --warn:#A5482E; --warn-bg:#F6E4DD;
@@ -97,9 +97,13 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;backgroun
 .hero h1{font-size:clamp(2.4rem,5.4vw,4.1rem)}
 .hero h1 em{color:var(--accent-nv);font-style:italic;font-weight:500}
 .hero p.sub{color:var(--on-navy-muted);font-size:1.1rem;max-width:54ch}
-.tope{display:grid;gap:4px;padding:18px 0 4px;border-top:1px solid rgba(244,246,251,.15)}
+.tope{display:grid;gap:8px;justify-items:start;padding:18px 0 4px;border-top:1px solid rgba(244,246,251,.15)}
 .tope .lbl{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--on-navy-muted)}
-.tope .num{font-family:var(--f-display);font-size:clamp(2rem,4.2vw,2.9rem);color:var(--accent-nv);font-variant-numeric:tabular-nums;line-height:1.1}
+.tope .num{font-family:var(--f-display);font-size:clamp(2.2rem,4.8vw,3.3rem);font-variant-numeric:tabular-nums;line-height:1.1;max-width:100%}
+.tope .num-hl{display:inline-block;background:var(--red-brand);color:#FFFFFF;padding:6px 18px 8px;border-radius:10px;box-shadow:0 10px 28px rgba(200,16,46,.35);font-weight:600;letter-spacing:.01em}
+.tope .save{font-size:1.02rem;color:var(--on-navy)}
+.tope .save b{color:var(--accent-nv);font-weight:700;font-variant-numeric:tabular-nums}
+.tope .save sup{color:var(--on-navy-muted);font-size:.7em}
 .tope .note{font-size:.84rem;color:var(--on-navy-muted)}
 .ctas{display:flex;flex-wrap:wrap;gap:12px}
 
@@ -288,7 +292,7 @@ footer .fb{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;al
 footer b{color:var(--on-navy);font-family:var(--f-display);font-size:1.05rem;font-weight:600}
 footer .legal{font-size:.76rem;max-width:90ch;line-height:1.55}
 
-.fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:50;width:58px;height:58px;border-radius:50%;background:var(--whatsapp);display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.25);color:#06371B}
+.fab{position:fixed;right:20px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:50;width:58px;height:58px;border-radius:50%;background:var(--whatsapp);display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.25);color:#06371B}
 .fab svg{width:28px;height:28px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -328,12 +332,13 @@ footer .legal{font-size:.76rem;max-width:90ch;line-height:1.55}
   <div class="wrap">
     <div class="hero-copy">
       <span class="badge">Guía 2026 · República Dominicana</span>
-      <h1>Su primera vivienda, <em>con el bono a su favor.</em></h1>
-      <p class="sub">El Bono de Primera Vivienda le devuelve el ITBIS pagado en la construcción de su apartamento y lo convierte en parte de su inicial. Le explico en qué consiste, quién califica y cómo se solicita.</p>
+      <h1>Hay dinero del Estado <em>esperando por su primera vivienda.</em></h1>
+      <p class="sub">La mayoría de los compradores no lo sabe: si su apartamento está en un proyecto de bajo costo, el Estado le devuelve el ITBIS de la construcción y lo aplica a su inicial. Siga leyendo y descubra si califica y cuánto podría ahorrar.</p>
       <div class="tope">
         <span class="lbl">Precio máximo de vivienda de bajo costo · 2026</span>
-        <span class="num">RD$5,450,851.12</span>
-        <span class="note">Fijado por la DGII (Resolución DDG-AR1-2026-00001). Se ajusta cada año por inflación.</span>
+        <span class="num"><span class="num-hl">RD$5,450,851.12</span></span>
+        <span class="save">Ahorre hasta <b>RD$436,068</b> con el bono<sup>*</sup></span>
+        <span class="note">Fijado por la DGII (Resolución DDG-AR1-2026-00001). Se ajusta cada año por inflación. <br>*Estimado con un bono del 8% sobre el precio máximo.</span>
       </div>
 
     </div>
@@ -539,7 +544,7 @@ footer .legal{font-size:.76rem;max-width:90ch;line-height:1.55}
   <div class="viewer-bar">
     <b id="viewerTitle">Ficha del proyecto</b>
     <div class="viewer-actions">
-      <button class="viewer-verif" id="viewerVerif" type="button">¿Califico para el bono?</button>
+      <button class="viewer-verif" id="viewerVerif" type="button">Aplicar con este proyecto</button>
       <a class="viewer-ext" id="viewerExt" href="#" target="_blank" rel="noopener">Abrir en otra pestaña</a>
       <button class="viewer-close" id="viewerClose" type="button" aria-label="Cerrar">✕</button>
     </div>
@@ -587,7 +592,7 @@ footer .legal{font-size:.76rem;max-width:90ch;line-height:1.55}
       grid.innerHTML='<article class="proj empty"><span class="pdf">PDF</span><h3>Próximamente en '+NOMBRES[loc]+'</h3><p>Estamos actualizando los proyectos de esta zona. Escríbame y le envío las opciones disponibles hoy.</p><a href="#verificador" data-goverif="1">Escribirle a Rolfi →</a></article>';
       return;
     }
-    grid.innerHTML=list.map(function(p){return '<article class="proj">'+(p.img?'<a class="cover open-pdf" data-name="'+esc(p.nombre)+'" data-key="'+p.pdf+'" href="'+p.pdf+'" target="_blank" rel="noopener" aria-label="Ver ficha de '+esc(p.nombre)+'"><img src="'+p.img+'" alt="'+esc(p.nombre)+'" loading="lazy"></a>':'<span class="pdf">PDF</span>')+'<span class="zona">'+esc(p.zona||'')+'</span><h3>'+esc(p.nombre)+'</h3><p>'+esc(p.desc||'')+'</p><div class="proj-actions"><a class="open-pdf" data-name="'+esc(p.nombre)+'" data-key="'+p.pdf+'" href="'+p.pdf+'" target="_blank" rel="noopener">Ver ficha →</a><button type="button" class="verif-btn" data-key="'+p.pdf+'">¿Califico con este proyecto?</button></div></article>'}).join('');
+    grid.innerHTML=list.map(function(p){return '<article class="proj">'+(p.img?'<a class="cover open-pdf" data-name="'+esc(p.nombre)+'" data-key="'+p.pdf+'" href="'+p.pdf+'" target="_blank" rel="noopener" aria-label="Ver ficha de '+esc(p.nombre)+'"><img src="'+p.img+'" alt="'+esc(p.nombre)+'" loading="lazy"></a>':'<span class="pdf">PDF</span>')+'<span class="zona">'+esc(p.zona||'')+'</span><h3>'+esc(p.nombre)+'</h3><p>'+esc(p.desc||'')+'</p><div class="proj-actions"><a class="open-pdf" data-name="'+esc(p.nombre)+'" data-key="'+p.pdf+'" href="'+p.pdf+'" target="_blank" rel="noopener">Ver proyecto →</a><button type="button" class="verif-btn" data-key="'+p.pdf+'">Aplicar con este proyecto</button></div></article>'}).join('');
   }
   var tabs=document.querySelectorAll('.tab');
   tabs.forEach(function(t){
