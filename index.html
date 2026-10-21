@@ -234,6 +234,7 @@ input,select,textarea{font:inherit;color:var(--ink);background:var(--sand);borde
 .viewer-verif{font:inherit;font-size:.85rem;font-weight:600;padding:9px 14px;border-radius:999px;border:0;background:var(--red);color:var(--on-navy);cursor:pointer;white-space:nowrap}
 
 .req-mark{color:var(--red)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 .send-btn{justify-content:center}
 .send-btn[aria-disabled="true"]{opacity:.55;cursor:not-allowed;transform:none}
 .missing{font-size:.86rem;color:#F6C9B8;background:rgba(165,72,46,.25);border:1px solid rgba(240,161,137,.4);border-radius:10px;padding:10px 12px}
@@ -436,7 +437,7 @@ footer .legal{font-size:.76rem;max-width:90ch;line-height:1.55}
     <div class="sec-head">
       <span class="eyebrow">Verificador</span>
       <h2>¿Su caso <em>podría calificar?</em></h2>
-      <p class="lead">Escriba su nombre, elija el proyecto que le interesa, responda las preguntas y envíe su caso a Rolfi por WhatsApp. La confirmación final depende de la fiduciaria y la DGII.</p>
+      <p class="lead">Escriba su nombre y su WhatsApp, elija el proyecto que le interesa, responda las preguntas y envíe su caso a Rolfi por WhatsApp. La confirmación final depende de la fiduciaria y la DGII.</p>
     </div>
     <div class="calc">
       <form id="calcForm" onsubmit="return false">
@@ -444,6 +445,12 @@ footer .legal{font-size:.76rem;max-width:90ch;line-height:1.55}
           <label for="nombre">Nombre y apellido <span class="req-mark">*</span></label>
           <input id="nombre" autocomplete="name" placeholder="Ej.: María Pérez" required>
         </div>
+        <div class="field">
+          <label for="telefono">Su número de WhatsApp <span class="req-mark">*</span></label>
+          <input id="telefono" type="tel" inputmode="tel" autocomplete="tel" placeholder="Ej.: 809-555-1234" required>
+          <small class="hint">Si vive fuera del país, incluya el código de su país (ej.: +1 305…).</small>
+        </div>
+        <div class="hp" aria-hidden="true"><label for="empresa">Empresa</label><input id="empresa" tabindex="-1" autocomplete="off"></div>
         <div class="field">
           <label for="proyecto">Proyecto de interés</label>
           <select id="proyecto"></select>
@@ -649,9 +656,10 @@ footer .legal{font-size:.76rem;max-width:90ch;line-height:1.55}
   }
   function update(){
     var p=BYKEY[selP.value], amt=num(), mon=moneda.value, rd=mon==='US'?amt*TASA:amt;
-    var primera=val('primera'), vivir=val('vivir'), fid=p?'si':val('fid'), nombre=document.getElementById('nombre').value.trim();
+    var primera=val('primera'), vivir=val('vivir'), fid=p?'si':val('fid'), nombre=document.getElementById('nombre').value.trim(), tel=normTel(document.getElementById('telefono').value);
     var faltan=[];
     if(!nombre)faltan.push(['nombre','su nombre y apellido']);
+    if(!tel)faltan.push(['telefono','su número de WhatsApp']);
     if(!primera)faltan.push(['primera','si es su primera vivienda']);
     if(!p&&!fid)faltan.push(['fid','si el proyecto es un fideicomiso calificado']);
     if(!vivir)faltan.push(['vivir','si vivirá en la vivienda']);
@@ -683,26 +691,46 @@ footer .legal{font-size:.76rem;max-width:90ch;line-height:1.55}
     L.push('Primera vivienda: '+(primera==='si'?'Sí':'No'));
     if(!p)L.push('Fideicomiso calificado: '+(fid==='si'?'Sí':(fid==='ns'?'No lo sé':'No')));
     L.push('Vivirá en ella: '+(vivir==='si'?'Sí':'No, es para alquilar'));
+    L.push('WhatsApp: '+(tel||'-'));
     L.push('Resultado: '+v.textContent+'.');
     L.push(anyNo?'Aunque no califique para el bono, me interesa conocer opciones para comprar.':'Me gustaría recibir más información.');
     var btn=document.getElementById('calcWa');
     btn.href=faltan.length?'#':'https://wa.me/'+WA+'?text='+encodeURIComponent(L.join('\n'));
     btn.setAttribute('aria-disabled',faltan.length?'true':'false');
     lastFaltan=faltan;
+    var of={'Fuente':'Página Bono Primera Vivienda','Proyecto':p?p.nombre:'Aún no ha elegido proyecto','Localidad':p?NOMBRES[p.loc]:'-','Precio':amt?(mon==='US'?fmtUS(amt):fmtRD(amt)):'Por definir','Primera vivienda':primera==='si'?'Sí':(primera==='no'?'No':'-'),'Vivirá en ella':vivir==='si'?'Sí':(vivir==='no'?'No, es para alquilar':'-'),'Resultado verificador':v.textContent,'Bono estimado':est.textContent};
+    if(!p)of['Fideicomiso calificado']=fid==='si'?'Sí':(fid==='ns'?'No lo sé':(fid==='no'?'No':'-'));
+    lastLead={name:nombre,phone:tel,display_name:nombre.split(' ')[0],other_fields:of,empresa:document.getElementById('empresa').value};
     if(showErr)paintMissing();
   }
-  var lastFaltan=[], showErr=false;
+  var lastFaltan=[], showErr=false, lastLead=null, lastSent='';
+  function normTel(v){
+    v=(v||'').trim(); var d=v.replace(/\D/g,'');
+    if(!d)return '';
+    if(v.charAt(0)==='+')return d.length>=10&&d.length<=15?'+'+d:'';
+    if(d.length===10)return '+1'+d;
+    if(d.length===11&&d.charAt(0)==='1')return '+'+d;
+    return d.length>=11&&d.length<=15?'+'+d:'';
+  }
+  function sendPrivyr(){
+    if(!lastLead)return;
+    var key=JSON.stringify(lastLead); if(key===lastSent)return; lastSent=key;
+    try{fetch('/api/privyr-lead',{method:'POST',headers:{'Content-Type':'application/json'},body:key,keepalive:true}).catch(function(){})}catch(e){}
+  }
   function paintMissing(){
     var m=document.getElementById('missing');
-    ['nombre','primera','fid','vivir'].forEach(function(k){var el=k==='nombre'?document.getElementById('nombre').closest('.field'):document.querySelector('input[name="'+k+'"]').closest('.q');el.classList.toggle('need',lastFaltan.some(function(f){return f[0]===k}))});
+    ['nombre','telefono','primera','fid','vivir'].forEach(function(k){var el=(k==='nombre'||k==='telefono')?document.getElementById(k).closest('.field'):document.querySelector('input[name="'+k+'"]').closest('.q');el.classList.toggle('need',lastFaltan.some(function(f){return f[0]===k}))});
     m.hidden=!lastFaltan.length;
     if(lastFaltan.length)m.textContent='Para enviar su caso, complete: '+lastFaltan.map(function(f){return f[1]}).join(', ')+'.';
   }
   document.getElementById('nombre').addEventListener('input',update);
+  document.getElementById('telefono').addEventListener('input',update);
   document.getElementById('calcWa').addEventListener('click',function(e){
     if(lastFaltan.length){e.preventDefault();showErr=true;paintMissing();
-      var k=lastFaltan[0][0], el=k==='nombre'?document.getElementById('nombre'):document.querySelector('input[name="'+k+'"]');
-      el.scrollIntoView({block:'center',behavior:'smooth'}); if(k==='nombre')el.focus({preventScroll:true});}
+      var k=lastFaltan[0][0], el=(k==='nombre'||k==='telefono')?document.getElementById(k):document.querySelector('input[name="'+k+'"]');
+      el.scrollIntoView({block:'center',behavior:'smooth'}); if(k==='nombre'||k==='telefono')el.focus({preventScroll:true});
+      return;}
+    sendPrivyr();
   });
   document.addEventListener('click',function(e){
     var a=e.target.closest('a[data-goverif]'); if(!a)return;
